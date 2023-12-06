@@ -193,7 +193,7 @@ with col1:
         'x': 0.5,
         'xanchor': 'center',
         'yanchor': 'top',
-        'font': {'color': 'gray',
+        'font': {'color': 'white',
                 'size' : 20}}, margin = dict(t=100, l=25, r=25, b=25))
     fig.update_traces(marker = dict(line=dict(width = 1, color = 'black')))
     fig.update_traces(texttemplate='%{label}: %{value:,.0f}백만원' , textposition='middle center',
@@ -215,7 +215,7 @@ with col2:
         'x': 0.5,
         'xanchor': 'center',
         'yanchor': 'top',
-        'font': {'color': 'gray',
+        'font': {'color': 'white',
                 'size' : 20}}, margin = dict(t=100, l=25, r=25, b=25))
     fig.update_traces(marker = dict(line=dict(width = 1, color = 'black')))
     fig.update_traces(texttemplate='%{label}: %{value:,.0f}백만원' , textposition='middle center', 
