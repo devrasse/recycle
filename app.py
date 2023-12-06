@@ -69,7 +69,7 @@ budget['회계연도'] = "2024년"
 budget = budget[['회계연도','부서명','예산액','자체재원']]
 
 with st.expander("2024년 미추홀구 예산", expanded=False):
-    st.dataframe(budget)
+    st.dataframe(budget,use_container_width=True)
 
 
 col1, col2 = st.columns(2)
