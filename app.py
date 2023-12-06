@@ -65,7 +65,7 @@ budget['자체재원'] = budget['자체재원'].fillna(0).apply(lambda x: int(x)
 
 budget = budget.groupby(['부서명']).sum()
 budget = budget.reset_index()
-budget['회계연도'] = budget['회계연도'].unique()
+budget = budget[['부서명','예산액','자체재원']]
 st.dataframe(budget)
 
 col1, col2 = st.columns(2)
@@ -166,14 +166,15 @@ with col1:
         'xanchor': 'center',
         'yanchor': 'top',
         'font': {'color': 'gray',
-                'size' : 50}}, margin = dict(t=100, l=25, r=25, b=25))
+                'size' : 20}}, margin = dict(t=100, l=25, r=25, b=25))
     fig.update_traces(marker = dict(line=dict(width = 1, color = 'black')))
-    fig.update_traces(texttemplate='%{label}: %{value:,.0f}백만원' , textposition='middle center') 
+    fig.update_traces(texttemplate='%{label}: %{value:,.0f}백만원' , textposition='middle center',
+                      textfont_color='black')
     fig.update_traces(#hoverinfo='label+percent+value', 
                     hovertemplate='%{label}: %{value:,.0f}백만원')
-    fig.update_traces(hoverlabel=dict(font_size=16, font_family="Arial", font_color="black"))
+    fig.update_traces(hoverlabel=dict(font_size=16, font_family="Arial", font_color="white"))
     fig.update_layout(font=dict(size=20))
-    st.plotly_chart(fig, use_container_width=False)   
+    st.plotly_chart(fig, use_container_width=True)   
 
 with col2:
     fig = px.treemap(budget, path=['부서명'], values='자체재원',
@@ -185,11 +186,12 @@ with col2:
         'xanchor': 'center',
         'yanchor': 'top',
         'font': {'color': 'gray',
-                'size' : 50}}, margin = dict(t=100, l=25, r=25, b=25))
+                'size' : 20}}, margin = dict(t=100, l=25, r=25, b=25))
     fig.update_traces(marker = dict(line=dict(width = 1, color = 'black')))
-    fig.update_traces(texttemplate='%{label}: %{value:,.0f}백만원' , textposition='middle center') 
+    fig.update_traces(texttemplate='%{label}: %{value:,.0f}백만원' , textposition='middle center', 
+                      textfont_color='black') 
     fig.update_traces(#hoverinfo='label+percent+value', 
                     hovertemplate='%{label}: %{value:,.0f}백만원')
-    fig.update_traces(hoverlabel=dict(font_size=16, font_family="Arial", font_color="black"))
+    fig.update_traces(hoverlabel=dict(font_size=16, font_family="Arial", font_color="white"))
     fig.update_layout(font=dict(size=20))
-    st.plotly_chart(fig, use_container_width=False)   
+    st.plotly_chart(fig, use_container_width=True)   
