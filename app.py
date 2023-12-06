@@ -28,8 +28,27 @@ def load_lottieurl(url: str):
 
 st.set_page_config(layout='wide', initial_sidebar_state='expanded')
 
-st.title(':bar_chart: 2024년 미추홀구 예산')
-st.markdown('<style>div.block-containner{padding-top:1rem;}</style>', unsafe_allow_html=True)
+#st.title(':bar_chart: 2024년 미추홀구 예산')
+#st.markdown('<style>div.block-containner{padding-top:1rem;}</style>', unsafe_allow_html=True)
+
+# 화면 중앙에 위치하도록 스타일 설정
+st.markdown(
+    """
+    <style>
+    .centered {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 0.5vh;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# 제목을 div 태그로 감싸서 스타일 적용
+st.markdown('<div class="centered"><h1 style="text-align:center;">📊 2024년 미추홀구 예산</h1></div>', unsafe_allow_html=True)
+st.title("   ")
 
 lottie_loading = load_lottiefile("lottiefiles/loading.json")  # replace link to local lottie file
 loading_state = st.empty()
