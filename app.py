@@ -65,9 +65,12 @@ budget['자체재원'] = budget['자체재원'].fillna(0).apply(lambda x: int(x)
 
 budget = budget.groupby(['부서명']).sum()
 budget = budget.reset_index()
-budget = budget[['부서명','예산액','자체재원']]
 budget['회계연도'] = "2024년"
-st.dataframe(budget)
+budget = budget[['회계연도','부서명','예산액','자체재원']]
+
+with st.expander("2024년 미추홀구 예산", expanded=False):
+    st.dataframe(budget)
+
 
 col1, col2 = st.columns(2)
 
@@ -92,10 +95,10 @@ with col1:
     fig.update_layout(title = {
         'text': '<b>미추홀구 예산 현황</b><br><sub>2024년 부서별 예산현황</sub>',
         'y': 0.95,
-        'x': 0.5,
+        'x': 0.4,
         'xanchor': 'center',
         'yanchor': 'top',
-        'font': {'color': 'gray',
+        'font': {'color': 'white',
                 'size' : 20}}, margin = {'t': 80} )
     fig.update_traces(hoverinfo='label+percent+value', 
                     hovertemplate='%{label}: %{value:,.0f}백만원')
@@ -109,6 +112,14 @@ with col2:
                 #color_discrete_map=color_discrete_map,
                 title='<b>미추홀구 예산 현황</b><br><sub>2024년 상위10개부서</sub> ', labels={'예산액': '예산액', '부서명': '부서명'},
                 template= 'simple_white',text = budget_top10['예산액'].apply(lambda x: f'{x:,.0f}'))
+    fig.update_layout(title = {
+        'text': '<b>미추홀구 예산 현황</b><br><sub>2024년 상위10개부서</sub>',
+        'y': 0.95,
+        'x': 0.5,
+        'xanchor': 'center',
+        'yanchor': 'top',
+        'font': {'color': 'white',
+                'size' : 20}}, margin = {'t': 80} )
     #fig.update_layout(yaxis_tickformat=',.0s')
     fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
     #fig.update_layout(title_x=0.5)
@@ -129,10 +140,10 @@ with col1:
     fig.update_layout(title = {
         'text': '<b>미추홀구 예산 현황(구비)</b><br><sub>2024년 부서별 예산현황</sub>',
         'y': 0.95,
-        'x': 0.5,
+        'x': 0.4,
         'xanchor': 'center',
         'yanchor': 'top',
-        'font': {'color': 'gray',
+        'font': {'color': 'white',
                 'size' : 20}}, margin = {'t': 80} )
     fig.update_traces(hoverinfo='label+percent+value', 
                     hovertemplate='%{label}: %{value:,.0f}백만원')
@@ -147,6 +158,15 @@ with col2:
                 title='<b>미추홀구 예산 현황(구비)</b><br><sub>2024년 상위10개부서</sub> ', labels={'자체재원': '예산액(구비)', '부서명': '부서명'},
                 template= 'simple_white',text = budget_top10_self['예산액'].apply(lambda x: f'{x:,.0f}'))
     #fig.update_layout(yaxis_tickformat=',.0s')
+
+    fig.update_layout(title = {
+        'text': '<b>미추홀구 예산 현황(구비)</b><br><sub>2024년 상위10개부서</sub>',
+        'y': 0.95,
+        'x': 0.5,
+        'xanchor': 'center',
+        'yanchor': 'top',
+        'font': {'color': 'white',
+                'size' : 20}}, margin = {'t': 80} )
     fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
     #fig.update_layout(title_x=0.5)
     fig.update_xaxes(tickangle=45)
@@ -156,6 +176,13 @@ with col2:
     
 st.markdown("---")
 col1, col2 = st.columns(2) 
+
+col1.write(
+    """
+    <div style="margin-right: 30px;">
+    """,
+    unsafe_allow_html=True
+)
 
 with col1:
     fig = px.treemap(budget, path=['부서명'], values='예산액',
@@ -175,7 +202,9 @@ with col1:
                     hovertemplate='%{label}: %{value:,.0f}백만원')
     fig.update_traces(hoverlabel=dict(font_size=16, font_family="Arial", font_color="white"))
     fig.update_layout(font=dict(size=20))
-    st.plotly_chart(fig, use_container_width=True)   
+    st.plotly_chart(fig, use_container_width=True)
+
+col1.write("</div>", unsafe_allow_html=True)
 
 with col2:
     fig = px.treemap(budget, path=['부서명'], values='자체재원',
