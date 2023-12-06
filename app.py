@@ -25,9 +25,13 @@ def load_lottieurl(url: str):
     if r.status_code != 200:
         return None
     return r.json()
-    
+
+st.set_page_config(layout='wide', initial_sidebar_state='expanded')
+
 st.title(':bar_chart: 2024년 미추홀구 예산')
-lottie_loading = load_lottiefile("./img/loading.json")  # replace link to local lottie file
+st.markdown('<style>div.block-containner{padding-top:1rem;}</style>', unsafe_allow_html=True)
+
+lottie_loading = load_lottiefile("lottiefiles/loading.json")  # replace link to local lottie file
 loading_state = st.empty()
 #lottie_hello = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_M9p23l.json")
 #lottie_loading = load_lottieurl("https://lottie.host/efece630-073b-49e3-8240-1a8a9c118346/KbRGnvFFOG.json")
@@ -51,15 +55,17 @@ with loading_state.container():
 loading_state.empty()
 
 budget = df.copy()
-budget = budget.iloc[:,1:]
 # #budget.drop(0, inplace=True)
-# selected_columns = ['회계연도', '예산구분', '세부사업명', '부서명', '예산액', '자체재원']
-# budget = budget[selected_columns]
-# budget['자체재원'] = budget['자체재원'].replace('경정', '', regex=True)
-# budget['회계연도'] = budget['회계연도'].fillna(0).replace(float('inf'), 0).astype(int)
-# budget['회계연도'] = budget['회계연도'].astype(str)
-# budget['자체재원'] = budget['자체재원'].fillna(0).apply(lambda x: int(x) if str(x).isdigit() and x != '' else 0)
+selected_columns = ['회계연도', '예산구분', '세부사업명', '부서명', '예산액', '자체재원']
+budget = budget[selected_columns]
+budget['자체재원'] = budget['자체재원'].replace('경정', '', regex=True)
+budget['회계연도'] = budget['회계연도'].fillna(0).replace(float('inf'), 0).astype(int)
+budget['회계연도'] = budget['회계연도'].astype(str)
+budget['자체재원'] = budget['자체재원'].fillna(0).apply(lambda x: int(x) if str(x).isdigit() and x != '' else 0)
 
+budget = budget.groupby(['부서명']).sum()
+budget = budget.reset_index()
+budget['회계연도'] = budget['회계연도'].unique()
 st.dataframe(budget)
 
 col1, col2 = st.columns(2)
