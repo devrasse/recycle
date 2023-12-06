@@ -5,3 +5,4 @@ plotly.express
 datetime  
 plotly 
 streamlit_lottie
+openpyxl
