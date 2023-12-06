@@ -66,6 +66,7 @@ budget['자체재원'] = budget['자체재원'].fillna(0).apply(lambda x: int(x)
 budget = budget.groupby(['부서명']).sum()
 budget = budget.reset_index()
 budget = budget[['부서명','예산액','자체재원']]
+budget['회계연도'] = "2024년"
 st.dataframe(budget)
 
 col1, col2 = st.columns(2)
