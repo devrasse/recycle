@@ -355,4 +355,79 @@ with col2:
 
 st.markdown("---")
 col1, col2 = st.columns(2)
+recycle_group = department_of_recycle.groupby(by='세부사업명').sum()
+budget_top10_recycle = recycle_group.nlargest(10,'자체재원')
+budget_top10_recycle = budget_top10_recycle.sort_values(by='자체재원',ascending=False)
+budget_top10_recycle.reset_index(inplace=True)
+with col1:
+    fig = px.pie(department_of_recycle, values='자체재원', names='세부사업명',
+            template='simple_white',color_discrete_sequence = px.colors.qualitative.Set2)
+    fig.update_traces(textposition='inside', textinfo = 'percent+label', 
+            textfont_color='white')
+    fig.update_layout(title = {
+        'text': '<b>자원순환과 예산 현황</b><br><sub>2024년 세부사업</sub>',
+        'y': 0.95,
+        'x': 0.4,
+        'xanchor': 'center',
+        'yanchor': 'top',
+        'font': {'color': 'gray',
+                'size' : 20}}, margin = {'t': 80} )
+    fig.update_traces(hoverinfo='label+percent+value', 
+                    hovertemplate='%{label}: %{value:,.0f}백만원')
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    fig = px.bar(budget_top10_recycle,x='세부사업명', y='자체재원',
+                labels={'자체재원': '구비', '세부사업명': '사업명'},
+                template= 'simple_white',text = budget_top10['자체재원'].apply(lambda x: f'{x:,.0f}'))
+    fig.update_layout(title = {
+        'text': '<b>자원순환과 예산 현황</b><br><sub>2024년 상위10개 사업</sub>',
+        'y': 0.95,
+        'x': 0.5,
+        'xanchor': 'center',
+        'yanchor': 'top',
+        'font': {'color': 'white',
+                'size' : 20}}, margin = {'t': 80} )
+    #fig.update_layout(yaxis_tickformat=',.0s')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    #fig.update_layout(title_x=0.5)
+    fig.update_xaxes(tickangle=45)
+    fig.update_traces(hovertemplate='%{label}: %{value:,.0f}백만원')
+
+    st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("---")
+col1, col2 = st.columns(2)
+
+budget_group['자체재원'] = budget_group['자체재원'].astype(float)
+budget_group['자체재원'] = (budget_group['자체재원']  / 1000).apply(np.floor)
+budget_top5 = budget_group.groupby('회계연도').apply(lambda group: group.nlargest(5, '자체재원')).reset_index(drop=True)
+budget_top5.reset_index(inplace=True)
+with col1:
+    # Plotly를 사용하여 시계열 그래프 그리기
+    fig = px.line(budget_top5, x='회계연도', y='자체재원', color='부서명', markers=True,
+                title='예산 상위 5개 부서 예산 증가 현황 ', labels={'자체재원': '구비', '회계연도': '연도'},
+                template= 'simple_white')
+    #fig.update_layout(yaxis_tickformat=',.0s')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    fig.update_layout(title_x=0.5)
+    fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원')
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    color_discrete_map = {highlight_department: 'blue'}
+    for department in budget['부서명'].unique():
+        if department != highlight_department:
+            color_discrete_map[department] = 'gray'
+
+    # Plotly를 사용하여 시계열 그래프 그리기
+    fig = px.line(budget_top5, x='회계연도', y='자체재원', color='부서명', markers=True,
+                color_discrete_map=color_discrete_map,
+                title='예산 상위 5개 부서 예산 증가 현황 ', labels={'자체재원': '구비', '회계연도': '연도'},
+                template= 'simple_white')
+    #fig.update_layout(yaxis_tickformat=',.0s')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    fig.update_layout(title_x=0.5)
+    fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원')
+    st.plotly_chart(fig, use_container_width=True)
 
