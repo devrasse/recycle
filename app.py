@@ -67,13 +67,14 @@ loading_state = st.empty()
 # )
 with loading_state.container():
     with st.spinner('데이터 읽어오는 중...'):
-        st_lottie(lottie_loading)
+        st_lottie(lottie_loading, width=600)
         df = pd.read_excel('budget.xlsx')
     st.success('로딩 완료!')
     
 loading_state.empty()
 
 budget = df.copy()
+budget = budget.dropna(subset=['산출근거식'])
 # #budget.drop(0, inplace=True)
 selected_columns = ['회계연도', '예산구분', '세부사업명', '부서명', '예산액', '자체재원','단위사업명','편성목명']
 budget = budget[selected_columns]
@@ -398,19 +399,20 @@ with col2:
 
 st.markdown("---")
 col1, col2 = st.columns(2)
-
+budget_group.reset_index(inplace=True)
 budget_group['자체재원'] = budget_group['자체재원'].astype(float)
 budget_group['자체재원'] = (budget_group['자체재원']  / 1000).apply(np.floor)
 budget_top5 = budget_group.groupby('회계연도').apply(lambda group: group.nlargest(5, '자체재원')).reset_index(drop=True)
 budget_top5.reset_index(inplace=True)
+
 with col1:
     # Plotly를 사용하여 시계열 그래프 그리기
     fig = px.line(budget_top5, x='회계연도', y='자체재원', color='부서명', markers=True,
-                title='예산 상위 5개 부서 예산 증가 현황 ', labels={'자체재원': '구비', '회계연도': '연도'},
+                title='<b>부서별 예산 증가 현황</b><br><sub>연도별 예산증가 상위5개 부서 현황</sub> ', labels={'자체재원': '구비', '회계연도': '연도'},
                 template= 'simple_white')
     #fig.update_layout(yaxis_tickformat=',.0s')
     fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
-    fig.update_layout(title_x=0.5)
+    fig.update_layout(title_x=0.4)
     fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원')
     st.plotly_chart(fig, use_container_width=True)
 
@@ -423,11 +425,110 @@ with col2:
     # Plotly를 사용하여 시계열 그래프 그리기
     fig = px.line(budget_top5, x='회계연도', y='자체재원', color='부서명', markers=True,
                 color_discrete_map=color_discrete_map,
-                title='예산 상위 5개 부서 예산 증가 현황 ', labels={'자체재원': '구비', '회계연도': '연도'},
+                title='<b>부서별 예산 증가 현황</b><br><sub>연도별 예산증가 상위5개 부서 현황</sub>', labels={'자체재원': '구비', '회계연도': '연도'},
                 template= 'simple_white')
     #fig.update_layout(yaxis_tickformat=',.0s')
     fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
-    fig.update_layout(title_x=0.5)
+    fig.update_layout(title_x=0.4)
     fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원')
     st.plotly_chart(fig, use_container_width=True)
 
+st.markdown("---")
+budget_department_of_recycle = budget[budget['부서명'] == '자원순환과']
+
+budget_department_of_recycle_years = budget_department_of_recycle.groupby('회계연도').sum()
+budget_department_of_recycle_years['자체재원'] = (budget_department_of_recycle_years['자체재원']  / 1000).apply(np.floor)
+budget_department_of_recycle_years.reset_index(inplace=True)
+
+fig = px.line(budget_department_of_recycle_years, x='회계연도', y='자체재원',  markers=True,
+            title='<b>자원순환과 예산 현황</b><br><sub>연도별 현황</sub>', labels={'예산액': '예산액', '회계연도': '연도'}
+            ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
+            )
+fig.update_traces(hovertemplate='연도: %{x}년<br>구비: %{y:,.0f}백만원')
+fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+fig.update_layout(title_x=0.5)
+st.plotly_chart(fig, use_container_width=True)
+
+st.markdown("---")
+col1, col2 = st.columns(2)
+budget_department_of_recycle_group = budget_department_of_recycle.groupby(['회계연도','세부사업명']).sum()
+budget_department_of_recycle_group.reset_index(inplace=True)
+budget_department_of_recycle_group['자체재원'] = (budget_department_of_recycle_group['자체재원']  / 1000).apply(np.floor)
+
+budget_life_waste = budget_department_of_recycle_group[budget_department_of_recycle_group['세부사업명'].str.contains('생활폐기물.*처리')]
+budget_life_waste['세부사업명'] = '생활폐기물 수거 처리'
+
+budget_recycle_waste = budget_department_of_recycle_group\
+                        [budget_department_of_recycle_group['세부사업명'].str.contains('재활용품.*처리')]
+budget_recycle_waste['세부사업명'] = '재활용품 수거 처리'
+budget_food_waste = budget_department_of_recycle_group\
+                    [budget_department_of_recycle_group['세부사업명'].str.contains('음식물.*수거|수거.*음식물')]
+budget_food_waste['세부사업명'] = '음식물류폐기물 수거처리'
+df_agencyfee = pd.concat([budget_food_waste, budget_life_waste, budget_recycle_waste], ignore_index=True)
+df_agencyfee = df_agencyfee.fillna(0)
+with col1:
+
+    fig = px.line(df_agencyfee, x='회계연도', y='자체재원', color='세부사업명', markers=True,
+                title='<b>자원순환과 예산 현황</b><br><sub>연도별 대행료 지출(생활,재활용,음식물)', labels={'예산액': '예산액', '회계연도': '연도'}
+                ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
+                custom_data=['세부사업명'])
+    fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원<br>사업명: %{customdata[0]}',
+                    hoverlabel=dict(font=dict(color='white')))
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    fig.update_layout(title_x=0.5)
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    fig = px.bar(df_agencyfee, x='회계연도', y='자체재원', color='세부사업명',
+                    #color_discrete_map=color_discrete_map,
+                    title='<b>자원순환과 예산 현황</b><br><sub>연도별 대행료 지출(생활,재활용,음식물)</sub> ',
+                    labels={'자체재원': '예산액', '회계연도': '연도'},
+                    template= 'simple_white',text = df_agencyfee['자체재원'].apply(lambda x: f'{x:,.0f}'))
+    fig.update_layout(title = {
+        'text': '<b>미추홀구 예산 현황</b><br><sub>2024년 상위10개부서</sub>',
+        'y': 0.95,
+        'x': 0.5,
+        'xanchor': 'center',
+        'yanchor': 'top',
+        'font': {'color': 'white',
+                'size' : 20}}, margin = {'t': 80} )
+    #fig.update_layout(yaxis_tickformat=',.0s')
+    fig.update_traces(textposition='inside', textfont_color='white')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    #fig.update_layout(title_x=0.5)
+    fig.update_xaxes(tickangle=45)
+    fig.update_traces(hovertemplate='%{label}: %{value:,.0f}백만원')
+
+    st.plotly_chart(fig, use_container_width=True)
+    
+st.markdown("---")    
+col1, col2, col3 = st.columns(3)
+with col1:
+    fig = px.line(budget_life_waste, x='회계연도', y='자체재원', markers=True,
+            title='<b>생활폐기물 처리 비용</b><br><sub>연도별 생활폐기물 수거처리</sub>', labels={'예산액': '예산액', '회계연도': '연도'}
+            ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
+            custom_data=['세부사업명'])
+    fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원<br>사업명: %{customdata[0]}')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    fig.update_layout(title_x=0.4)
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    fig = px.line(budget_recycle_waste, x='회계연도', y='자체재원', markers=True,
+            title='<b>재활용폐기물 처리 비용</b><br><sub>연도별 재활용폐기물 수거처리</sub>', labels={'자체재원': '예산액', '회계연도': '연도'}
+            ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
+            custom_data=['세부사업명'])
+    fig.update_traces(hovertemplate='연도: %{x}년<br>자체재원: %{y:,.0f}백만원<br>사업명: %{customdata[0]}')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    fig.update_layout(title_x=0.4)
+    st.plotly_chart(fig, use_container_width=True)
+
+with col3:
+    fig = px.line(budget_food_waste, x='회계연도', y='자체재원', markers=True,
+            title='<b>음식물폐김물 처리 비용</b><br><sub>연도별 음식물폐기물 수거처리</sub>', labels={'자체재원': '예산액', '회계연도': '연도'}
+            ,template= 'presentation', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
+            custom_data=['세부사업명'])
+    fig.update_traces(hovertemplate='연도: %{x}년<br>자체재원: %{y:,.0f}백만원<br>사업명: %{customdata[0]}')
+    fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
+    fig.update_layout(title_x=0.4)
+    st.plotly_chart(fig, use_container_width=True)
