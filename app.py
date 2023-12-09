@@ -505,7 +505,7 @@ st.markdown("---")
 col1, col2, col3 = st.columns(3)
 with col1:
     fig = px.line(budget_life_waste, x='회계연도', y='자체재원', markers=True,
-            title='<b>생활폐기물 처리 비용</b><br><sub>연도별 생활폐기물 수거처리</sub>', labels={'예산액': '예산액', '회계연도': '연도'}
+            title='<b>생활폐기물 처리 비용</b><br><sub>연도별 생활폐기물 수거처리</sub>', labels={'자체재원': '예산액', '회계연도': '연도'}
             ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
             custom_data=['세부사업명'])
     fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원<br>사업명: %{customdata[0]}')
