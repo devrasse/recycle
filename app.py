@@ -528,7 +528,7 @@ with col2:
 
 with col3:
     fig = px.line(budget_food_waste, x='회계연도', y='자체재원', markers=True,
-            title='<b>음식물폐김물 처리 비용</b><br><sub>연도별 음식물폐기물 수거처리</sub>', labels={'자체재원': '예산액', '회계연도': '연도'}
+            title='<b>음식물폐기물 처리 비용</b><br><sub>연도별 음식물폐기물 수거처리</sub>', labels={'자체재원': '예산액', '회계연도': '연도'}
             ,template= 'presentation', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
             custom_data=['세부사업명'])
     fig.update_traces(hovertemplate='연도: %{x}년<br>자체재원: %{y:,.0f}백만원<br>사업명: %{customdata[0]}')
