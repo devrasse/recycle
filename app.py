@@ -371,7 +371,7 @@ with col1:
         'x': 0.4,
         'xanchor': 'center',
         'yanchor': 'top',
-        'font': {'color': 'gray',
+        'font': {'color': 'white',
                 'size' : 20}}, margin = {'t': 80} )
     fig.update_traces(hoverinfo='label+percent+value', 
                     hovertemplate='%{label}: %{value:,.0f}백만원')
@@ -382,7 +382,7 @@ with col2:
                 labels={'자체재원': '구비', '세부사업명': '사업명'},
                 template= 'simple_white',text = budget_top10['자체재원'].apply(lambda x: f'{x:,.0f}'))
     fig.update_layout(title = {
-        'text': '<b>자원순환과 예산 현황</b><br><sub>2024년 상위10개 사업</sub>',
+        'text': '<b>자원순환과 예산 현황</b><br><sub>2024년 세부사업</sub>',
         'y': 0.95,
         'x': 0.5,
         'xanchor': 'center',
@@ -441,7 +441,7 @@ budget_department_of_recycle_years['자체재원'] = (budget_department_of_recyc
 budget_department_of_recycle_years.reset_index(inplace=True)
 
 fig = px.line(budget_department_of_recycle_years, x='회계연도', y='자체재원',  markers=True,
-            title='<b>자원순환과 예산 현황</b><br><sub>연도별 현황</sub>', labels={'예산액': '예산액', '회계연도': '연도'}
+            title='<b>자원순환과 예산 현황</b><br><sub>연도별 현황(구비)</sub>', labels={'자체재원': '예산액', '회계연도': '연도'}
             ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
             )
 fig.update_traces(hovertemplate='연도: %{x}년<br>구비: %{y:,.0f}백만원')
@@ -466,16 +466,19 @@ budget_food_waste = budget_department_of_recycle_group\
 budget_food_waste['세부사업명'] = '음식물류폐기물 수거처리'
 df_agencyfee = pd.concat([budget_food_waste, budget_life_waste, budget_recycle_waste], ignore_index=True)
 df_agencyfee = df_agencyfee.fillna(0)
+
 with col1:
 
     fig = px.line(df_agencyfee, x='회계연도', y='자체재원', color='세부사업명', markers=True,
-                title='<b>자원순환과 예산 현황</b><br><sub>연도별 대행료 지출(생활,재활용,음식물)', labels={'예산액': '예산액', '회계연도': '연도'}
+                title='<b>자원순환과 예산 현황</b><br><sub>연도별 대행료 지출(생활,재활용,음식물)',
+                labels={'자체재원': '예산액', '회계연도': '연도'}
                 ,template= 'simple_white', #text = budget_department_of_recycle_years['예산액'].apply(lambda x: f'{x:,.0f}백만원'
-                custom_data=['세부사업명'])
+                custom_data=['세부사업명']
+                )
     fig.update_traces(hovertemplate='연도: %{x}년<br>예산액: %{y:,.0f}백만원<br>사업명: %{customdata[0]}',
                     hoverlabel=dict(font=dict(color='white')))
     fig.update_layout(yaxis_tickformat=',.0f', yaxis_ticksuffix='백만원')
-    fig.update_layout(title_x=0.5)
+    fig.update_layout(title_x=0.4)
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -485,7 +488,7 @@ with col2:
                     labels={'자체재원': '예산액', '회계연도': '연도'},
                     template= 'simple_white',text = df_agencyfee['자체재원'].apply(lambda x: f'{x:,.0f}'))
     fig.update_layout(title = {
-        'text': '<b>미추홀구 예산 현황</b><br><sub>2024년 상위10개부서</sub>',
+        'text': '<b>자원순환과 예산 현황</b><br><sub>연도별 대행료 지출(생활,재활용,음식물)',
         'y': 0.95,
         'x': 0.5,
         'xanchor': 'center',
