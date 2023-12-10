@@ -67,7 +67,7 @@ loading_state = st.empty()
 # )
 with loading_state.container():
     with st.spinner('데이터 읽어오는 중...'):
-        #st_lottie(lottie_loading)
+        st_lottie(lottie_loading)
         df = pd.read_excel('budget.xlsx')
     st.success('로딩 완료!')
     
